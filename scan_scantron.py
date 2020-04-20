@@ -2,8 +2,8 @@
 from PIL import Image
 import pytesseract
 
-def scan_scantron(file):
+def scan_file(file):
     text = pytesseract.image_to_string(Image.open(file))
     return text
 
-print(scan_scantron('scantron-100.jpg'))
+#print(scan_file('scantron-100.jpg'))
