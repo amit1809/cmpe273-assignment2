@@ -31,7 +31,7 @@ def setup_db():
 
     #Create scantron table
     cur.execute("CREATE TABLE IF NOT EXISTS scantron_details(scantron_id INT primary key, scantron_url TEXT, "
-                "name TEXT, subject TEXT, answer_keys TEXT, score INT, result TEXT, test_id INT not null, "
+                "name TEXT, subject TEXT, score INT, result TEXT, test_id INT not null, "
                 "foreign key(test_id) references test_details(test_id))")
     commit_db()
     #close_connection()
