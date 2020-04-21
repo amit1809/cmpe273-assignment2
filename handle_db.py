@@ -18,7 +18,6 @@ def commit_db():
     print("DB Commited")
 
 def setup_db():
-    global test_id
     cur = get_db().cursor()
 
     # Dropping existing tables before application starts
@@ -36,3 +35,39 @@ def setup_db():
     commit_db()
     #close_connection()
     return "Success"
+
+# get column name along with query result for json format
+def get_json_object_from_query(db_cur):
+    r = [dict((db_cur.description[i][0], value) \
+              for i, value in enumerate(row)) for row in db_cur.fetchall()]
+    return r
+def query_scantron(key_value):
+    cur = get_db().cursor()
+    if(key_value == None):
+        cur.execute("SELECT * FROM scantron_details")
+    else:
+        cur.execute("SELECT * FROM scantron_details WHERE scantron_id=?", (key_value,))
+
+    return get_json_object_from_query(cur)
+
+def query_test(key_value):
+    cur = get_db().cursor()
+    if(key_value == None):
+        cur.execute("SELECT * FROM test_details")
+    else:
+        cur.execute("SELECT * FROM test_details WHERE test_id=?", (key_value,))
+
+    return get_json_object_from_query(cur)
+
+def insert_scantron(scantron_id, scantron_url, name, subject_name, score,scantron_answers_str, test_id):
+    cur = get_db().cursor()
+    cur.execute("INSERT INTO scantron_details(scantron_id, scantron_url, name, subject, score, "
+                "result, test_id) VALUES(?, ?, ?, ?, ?, ?, ?)", (scantron_id, scantron_url, name, subject_name, score,
+                                                                 scantron_answers_str, test_id))
+    commit_db()
+
+def insert_test(test_id, subject_name, answer_str):
+    cur = get_db().cursor()
+    cur.execute("INSERT INTO test_details(test_id, subject, answer_keys) VALUES(?, ?, ?)",
+                (test_id, subject_name, answer_str))
+    commit_db()

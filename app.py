@@ -2,6 +2,7 @@ from flask import Flask, escape, request, jsonify, g
 import os
 from scan_scantron import scan_file
 from handle_db import setup_db, close_connection, commit_db, get_db
+import handle_db
 import json
 
 app = Flask(__name__)
@@ -35,18 +36,13 @@ def add_test():
     answer_str = ','.join(answer_list)
 
     #insert test details in DB
-    cur = get_db().cursor()
-    cur.execute("INSERT INTO test_details(test_id, subject, answer_keys) VALUES(?, ?, ?)", (test_id, subject_name, answer_str))
-    commit_db()
-    cur.execute("SELECT * FROM test_details WHERE test_id=?", (test_id,))
-    # get column name along with query result for json format
-    r = [dict((cur.description[i][0], value) \
-              for i, value in enumerate(row)) for row in cur.fetchall()]
-    cur.connection.close()
+    handle_db.insert_test(test_id, subject_name, answer_str)
+
+    last_inserted = handle_db.query_test(test_id)
     test_id += 1
     close_connection()
-    print(r)
-    return jsonify(r), 201
+    print(last_inserted)
+    return jsonify(last_inserted), 201
 
 @app.route('/api/tests/temp/scantrons', methods=['POST'])
 def upload_scantrons_details():
@@ -75,19 +71,12 @@ def upload_scantrons_details():
     score = get_score(answer_key_list, scantron_answers_list)
 
     # insert scantron details in DB
-    cur.execute("INSERT INTO scantron_details(scantron_id, scantron_url, name, subject, score, "
-                "result, test_id) VALUES(?, ?, ?, ?, ?, ?, ?)", (scantron_id, scantron_url, name, subject_name, score,
-                                                                 scantron_answers_str, test_id))
-    commit_db()
-    cur.execute("SELECT * FROM scantron_details WHERE scantron_id=?", (scantron_id,))
+    handle_db.insert_scantron(scantron_id, scantron_url, name, subject_name, score,scantron_answers_str, test_id)
 
-    # get column name along with query result for json format
-    r = [dict((cur.description[i][0], value) \
-              for i, value in enumerate(row)) for row in cur.fetchall()]
-
+    last_inserted = handle_db.query_scantron(scantron_id)
     scantron_id += 1
     close_connection()
-    return jsonify(r), 201
+    return jsonify(last_inserted), 201
 
 @app.route('/api/tests/<int:file_id>/scantrons', methods=['POST'])
 def upload_scantrons(file_id):
@@ -97,43 +86,23 @@ def upload_scantrons(file_id):
         fp.write(request.data)
     file_contents = scan_file(FILE_PATH)
     print(file_contents)
-
-
-        #scantron_id += 1
+    #scantron_id += 1
     return "Scantron uploaded", 201
 
 @app.route('/api/tests/<int:test_id>', methods=['GET'])
 def get_test_details(test_id):
-    cur = get_db().cursor()
-    cur.execute("SELECT * FROM test_details WHERE test_id=?", (test_id,))
-
-    # get column name along with query result for json format
-    r = [dict((cur.description[i][0], value) \
-              for i, value in enumerate(row)) for row in cur.fetchall()]
-    print(r)
-    return jsonify(r), 201
+    result = handle_db.query_test(test_id)
+    return jsonify(result), 201
 
 @app.route('/api/tests/all', methods=['GET'])
 def get_all_tests():
-    cur = get_db().cursor()
-    cur.execute("SELECT * FROM test_details")
-
-    # get column name along with query result for json format
-    r = [dict((cur.description[i][0], value) \
-              for i, value in enumerate(row)) for row in cur.fetchall()]
-    print(r)
-    return jsonify(r), 201
+    result = handle_db.query_test(None)
+    return jsonify(result), 201
 
 @app.route('/api/scantrons/all', methods=['GET'])
 def get_all_scantrons():
-    cur = get_db().cursor()
-    cur.execute("SELECT * FROM scantron_details")
-
-    # get column name along with query result for json format
-    r = [dict((cur.description[i][0], value) \
-              for i, value in enumerate(row)) for row in cur.fetchall()]
-    print(r)
-    return jsonify(r), 201
+    result = handle_db.query_scantron(None)
+    return jsonify(result), 201
 
 def get_score(answer_key, scantron_key):
     print(answer_key)
