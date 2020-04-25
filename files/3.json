@@ -1,0 +1,13 @@
+{
+    "name": "Foo Bar",
+    "subject": "English",
+    "scanned_answers": {
+        "1": "B",
+        "2": "A",
+        "3": "A",
+        "4": "A",
+        "..": "C",
+        "49": "A",
+        "50": "A"
+    }
+}

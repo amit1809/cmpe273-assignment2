@@ -1,0 +1,12 @@
+{
+    "name": "Foo Bar",
+    "subject": "Math",
+    "scanned_answers": {
+        "1": "A",
+        "2": "B",
+        "3": "C",
+        "..": "..",
+        "49": "D",
+        "50": "E"
+    }
+}
