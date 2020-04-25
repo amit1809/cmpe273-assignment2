@@ -33,6 +33,15 @@ def add_test():
     subject_name = content["subject"]
     answers = content["answer_keys"]
     answer_list = list(answers.values())
+
+    #Check if answers list is of size 50
+    if(len(answer_list) != 50):
+        return (f'Please re-check !! 50 Answers required but {len(answer_list)} provided')
+
+    #Check all answers are valid
+    if(check_valid_answers(answer_list) == False):
+        return (f'Answers are not valid !! Should be from this list: ["A","B","C","D","E"]')
+
     answer_str = ','.join(answer_list)
 
     #insert test details in DB
@@ -92,10 +101,25 @@ def handle_scantron(content, file_path):
     subject_name = content["subject"]
     answers = content["scanned_answers"]
     scantron_answers_list = list(answers.values())
+
+    # Check if answers list is of size 50
+    if (len(scantron_answers_list) != 50):
+        return (f'Please re-check !! 50 Answers required but {len(scantron_answers_list)} provided')
+
+    # Check all answers are valid
+    if (check_valid_answers(scantron_answers_list) == False):
+        return (f'Answers are not valid !! Should be from this list: "A","B","C","D","E"')
+
     scantron_answers_str = ','.join(scantron_answers_list)
     cur = get_db().cursor()
 
     # get test_id and answers key for subject name
+    cur.execute("SELECT test_id FROM test_details WHERE subject=?", (subject_name,))
+
+    # If test case details not exist
+    if (cur.fetchone() == None):
+        return (f'Test cases details for subject: {subject_name} not exist, please provide same first')
+
     cur.execute("SELECT test_id FROM test_details WHERE subject=?", (subject_name,))
     test_id = str(cur.fetchone()[0])
     cur.execute("SELECT answer_keys FROM test_details WHERE subject=?", (subject_name,))
@@ -124,3 +148,8 @@ def get_score(answer_key, scantron_key):
             score += 1
     print(f"Score:{score}")
     return score
+
+def check_valid_answers(answer_list):
+    valid_answers = ["A", "B", "C", "D", "E"]
+    check = all(item in valid_answers for item in answer_list)
+    return check
