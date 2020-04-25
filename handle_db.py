@@ -71,3 +71,8 @@ def insert_test(test_id, subject_name, answer_str):
     cur.execute("INSERT INTO test_details(test_id, subject, answer_keys) VALUES(?, ?, ?)",
                 (test_id, subject_name, answer_str))
     commit_db()
+
+def query_scantrons_for_test(test_id):
+    cur = get_db().cursor()
+    cur.execute("SELECT * FROM scantron_details WHERE test_id=?", (test_id,))
+    return get_json_object_from_query(cur)

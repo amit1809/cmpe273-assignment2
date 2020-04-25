@@ -70,7 +70,8 @@ def upload_scantrons_jpeg(file_id):
 @app.route('/api/tests/<int:test_id>', methods=['GET'])
 def get_test_details(test_id):
     result = handle_db.query_test(test_id)
-    return jsonify(result), 201
+    scantrons = handle_db.query_scantrons_for_test(test_id)
+    return jsonify(result+scantrons), 201
 
 @app.route('/api/tests/all', methods=['GET'])
 def get_all_tests():
