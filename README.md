@@ -9,6 +9,12 @@ It supports below main functionalities
 * Score calculation against answer keys
 * Score reporting
 
+* Run it from a shell/terminal.
+
+```sh
+$ env FLASK_APP=app.py flask run
+```
+
 All the above features will be handled via a set of REST APIs. The application will persist data into a local SQLite DB.
 
 # APIs
@@ -19,7 +25,7 @@ _Request_
 
 > POST http://localhost:5000/api/tests
 
-
+![](create_test_api.png)
 
 ## Upload a scantron
 
@@ -27,14 +33,7 @@ _Request_
 
 > POST http://localhost:5000/api/tests/1/scantrons
 
-
-```
-# HTTP Request Body
-JSON_SCANTRON_FILE 
-```
-
-_Response_
-
+![](upload_scantron_api.png)
 
 
 ## Check all scantron submissions
@@ -43,13 +42,7 @@ _Request_
 
 > GET http://localhost:5000/api/tests/1
 
-
-_Response_
-
-
-
-
-![](scantron-100.jpg)
+![](check_all_scantron_api.png)
 
 
 
