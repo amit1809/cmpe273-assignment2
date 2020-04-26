@@ -9,7 +9,7 @@ It supports below main functionalities
 * Score calculation against answer keys
 * Score reporting
 
-* Run it from a shell/terminal.
+# How to run
 
 ```sh
 $ env FLASK_APP=app.py flask run
@@ -25,14 +25,16 @@ _Request_
 
 > POST http://localhost:5000/api/tests
 
+_Postman screenshot_
 ![](create_test_api.png)
 
 ## Upload a scantron
-
+JSON_SCANTRON_FILE (sample files included in repo)
 _Request_
 
 > POST http://localhost:5000/api/tests/1/scantrons
 
+_Postman screenshot_
 ![](upload_scantron_api.png)
 
 
@@ -42,6 +44,7 @@ _Request_
 
 > GET http://localhost:5000/api/tests/1
 
+_Postman screenshot_
 ![](check_all_scantron_api.png)
 
 
