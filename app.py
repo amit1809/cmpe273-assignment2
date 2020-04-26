@@ -3,7 +3,6 @@ import os
 from scan_scantron import scan_jpeg_file, scan_json_file
 from handle_db import setup_db, close_connection, commit_db, get_db
 import handle_db
-import json
 
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
@@ -47,10 +46,10 @@ def add_test():
     #insert test details in DB
     handle_db.insert_test(test_id, subject_name, answer_str)
 
-    last_inserted = handle_db.query_test(test_id)
+    #last_inserted = handle_db.query_test(test_id)
+    last_inserted = handle_db.get_dict_output_from_query_test(test_id)
     test_id += 1
     close_connection()
-    print(last_inserted)
     return jsonify(last_inserted), 201
 
 @app.route('/api/tests/<int:file_id>/scantrons', methods=['POST'])
@@ -60,7 +59,6 @@ def upload_scantrons_json(file_id):
     with open(FILE_PATH, "wb") as fp:
         fp.write(request.data)
     file_contents = scan_json_file(FILE_PATH)
-    print(file_contents)
     insert_data = handle_scantron(file_contents, FILE_PATH)
 
     return jsonify(insert_data), 201
@@ -73,28 +71,17 @@ def upload_scantrons_jpeg(file_id):
         fp.write(request.data)
     file_contents = scan_jpeg_file(FILE_PATH)
     print(file_contents)
-    #scantron_id += 1
     return "Scantron uploaded", 201
 
 @app.route('/api/tests/<int:test_id>', methods=['GET'])
 def get_test_details(test_id):
-    result = handle_db.query_test(test_id)
-    scantrons = handle_db.query_scantrons_for_test(test_id)
-    return jsonify(result+scantrons), 201
-
-@app.route('/api/tests/all', methods=['GET'])
-def get_all_tests():
-    result = handle_db.query_test(None)
-    return jsonify(result), 201
-
-@app.route('/api/scantrons/all', methods=['GET'])
-def get_all_scantrons():
-    result = handle_db.query_scantron(None)
+    result = handle_db.get_dict_output_from_query_test(test_id)
+    scantrons = handle_db.get_dict_query_scantrons_for_test(test_id)
+    result["submissions"] = scantrons
     return jsonify(result), 201
 
 def handle_scantron(content, file_path):
     global scantron_id
-    print(file_path)
     #scantron_url = content["scantron_url"]
     scantron_url = "http://localhost:5000/files/"+ file_path[file_path.index("/files/") + len("/files/"):]
     name = content["name"]
@@ -134,14 +121,12 @@ def handle_scantron(content, file_path):
     # insert scantron details in DB
     handle_db.insert_scantron(scantron_id, scantron_url, name, subject_name, score, scantron_answers_str, test_id)
 
-    last_inserted = handle_db.query_scantron(scantron_id)
+    last_inserted = handle_db.get_dict_output_from_query_scantron(scantron_id)
     scantron_id += 1
     close_connection()
     return last_inserted
 
 def get_score(answer_key, scantron_key):
-    print(answer_key)
-    print(scantron_key)
     score = 0
     for i in range(len(answer_key)):
         if(answer_key[i] == scantron_key[i]):
