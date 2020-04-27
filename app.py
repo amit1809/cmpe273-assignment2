@@ -86,7 +86,7 @@ def handle_scantron(content, file_path):
     scantron_url = "http://localhost:5000/files/"+ file_path[file_path.index("/files/") + len("/files/"):]
     name = content["name"]
     subject_name = content["subject"]
-    answers = content["scanned_answers"]
+    answers = content["answers"]
     scantron_answers_list = list(answers.values())
 
     # Check if answers list is of size 50
