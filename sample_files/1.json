@@ -1,7 +1,7 @@
 {
     "name": "Foo Bar",
     "subject": "English",
-    "scanned_answers": {
+    "answers": {
         "1": "A",
         "2": "B",
         "3": "C",
